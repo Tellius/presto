@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 
 import static com.facebook.presto.common.type.StandardTypes.BIGINT_ENUM;
 import static java.lang.Boolean.parseBoolean;
-import static java.lang.Character.isDigit;
 import static java.lang.Integer.min;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -633,7 +632,7 @@ public class TypeSignature
             Map<Integer, DistinctTypeParsingData> parsedDistinctTypes)
     {
         String parameterName = signature.substring(begin, end).trim();
-        if (isDigit(signature.charAt(begin))) {
+        if (isDigital(parameterName)) {
             return TypeSignatureParameter.of(Long.parseLong(parameterName));
         }
         else if (literalCalculationParameters.contains(parameterName)) {
@@ -658,6 +657,16 @@ public class TypeSignature
         else {
             return TypeSignatureParameter.of(parseTypeSignature(parameterName, literalCalculationParameters));
         }
+    }
+
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("^\\d+$");
+
+    private static boolean isDigital(String val)
+    {
+        if (val == null || "".equals(val)) {
+            return false;
+        }
+        return NUMBER_PATTERN.matcher(val).matches();
     }
 
     private static boolean isValidStartOfIdentifier(char c)
